@@ -1,22 +1,15 @@
-FROM node:11
-
-
-RUN apt-get update && apt-get install -y --no-install-recommends \
-  curl \
-  zip unzip \
-  python-dev \
-  && rm -rf /var/lib/apt/lists/*
-
-
-WORKDIR /tmp
-
-RUN curl "https://s3.amazonaws.com/aws-cli/awscli-bundle.zip" -o "awscli-bundle.zip"
-RUN unzip awscli-bundle.zip
-RUN ./awscli-bundle/install -i /usr/local/aws -b /usr/local/bin/aws
-
-WORKDIR /
-
-RUN curl -o /usr/local/bin/ecs-cli https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-linux-amd64-latest
-RUN chmod +x /usr/local/bin/ecs-cli
-
-ENV PATH="~/bin:${PATH}"
+FROM node:10
+RUN DEBIAN_FRONTEND=noninteractive apt-get update\
+    && curl -sSL https://get.docker.com/ | sh\
+    && service docker start\
+    && apt-get upgrade -y\
+    && apt-get install -y --no-install-recommends \
+        build-essential g++ python2.7 python2.7-dev unzip curl zip git bash\
+    && rm -rf /var/lib/apt/lists/* \
+    && mkdir -p /tmp \
+    && cd /tmp \
+    && curl -O https://bootstrap.pypa.io/get-pip.py \
+    && python get-pip.py \
+    && pip install awscli ecs-deploy \
+    && rm -f /tmp/get-pip.py \
+    && export PATH=~/.local/bin:/usr/bin/:$PATH
